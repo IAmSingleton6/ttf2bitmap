@@ -1,4 +1,5 @@
 from PIL import Image
+import os
 import freetype
 from cf_wrapper import Config
 
@@ -18,18 +19,20 @@ class BitmapFontGenerator:
         self.chars = [chr(i) for i in range(32, 127)]
 
 
-    def ttf_to_fnt(self, fontfile, output_name):
+    def ttf_to_fnt(self, font_path, export_dir, output_name):
+        os.makedirs(export_dir, exist_ok=True)
+        
         self.fnt_data = []
         self._initialize_image()
-        self._initialize_face(fontfile)
+        self._initialize_face(font_path)
         self._initialize_sizes()
 
-        self._generate_image(output_name)
-        self._generate_fnt(output_name)
+        self._generate_image(export_dir, output_name)
+        self._generate_fnt(export_dir, output_name)
         print(f"Saved {output_name}.png and {output_name}.fnt")
 
 
-    def _generate_image(self, output_name):
+    def _generate_image(self, export_dir, output_name):
         ascender = self.face.size.ascender >> 6
         cursor_x = cursor_y = 0
 
@@ -66,11 +69,14 @@ class BitmapFontGenerator:
             cursor_x += self.max_width + self.padding_x if self.mono_spaced else width + self.padding_x
 
         compress_level = clamp(self.compress_level, 0, 9)
-        self.image.save(f"{output_name}.png", compress_level=compress_level)
+        export_path = os.path.join(export_dir, f"{output_name}.png")
+        self.image.save(export_path, compress_level=compress_level)
 
 
-    def _generate_fnt(self, output_name):
-        with open(f"{output_name}.fnt", "w") as f:
+    def _generate_fnt(self, export_dir, output_name):
+        export_path = os.path.join(export_dir, f"{output_name}.fnt")
+
+        with open(export_path, "w") as f:
             f.write("info face=\"custom\" size=%d\n" % self.pixel_size)
             f.write(f"common lineHeight={self.line_height} base={self.pixel_size} scaleW={self.texture_size_w} scaleH={self.texture_size_h} pages=1 packed=0\n")
             f.write("page id=0 file=\"%s.png\"\n" % output_name)
@@ -83,8 +89,8 @@ class BitmapFontGenerator:
     def _initialize_image(self):
         self.image = Image.new("L", (self.texture_size_w, self.texture_size_h), 0)
 
-    def _initialize_face(self, fontfile):
-        self.face = freetype.Face(fontfile)
+    def _initialize_face(self, font_path):
+        self.face = freetype.Face(font_path)
         self.face.set_pixel_sizes(0, self.pixel_size)
 
 

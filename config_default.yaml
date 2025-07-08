@@ -3,8 +3,8 @@ font_settings:
   mono_spaced: False
 
 export_settings:
-  texture_size_w: 128
-  texture_size_h: 128
+  texture_size_w: 256
+  texture_size_h: 256
   padding_x: 1
   padding_y: 1
   equal_character_spacing: False
