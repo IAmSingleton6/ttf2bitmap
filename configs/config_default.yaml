@@ -1,0 +1,11 @@
+font_settings:
+  pixel_size: 16
+  mono_spaced: False
+
+export_settings:
+  texture_size_w: 128
+  texture_size_h: 128
+  padding_x: 1
+  padding_y: 1
+  equal_character_spacing: False
+  compress_level: 0
